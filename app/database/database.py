@@ -1,0 +1,33 @@
+"""
+This module sets up the SQLAlchemy engine, session, and base class for the application.
+
+It configures the database connection using settings from the configuration file and provides a
+function to obtain a database session.
+"""
+
+from sqlalchemy import create_engine
+from sqlalchemy.ext.declarative import declarative_base
+from sqlalchemy.orm import sessionmaker
+from app.config.config import settings
+
+SQLALCHEMY_DATABASE_URL = f"postgresql://{settings.database_username}:{settings.database_password}@{
+    settings.database_hostname}:{settings.database_port}/{settings.database_name}"
+
+engine = create_engine(SQLALCHEMY_DATABASE_URL)
+
+SessionLocal = sessionmaker(autocommit=False, autoflush=False, bind=engine)
+
+Base = declarative_base()
+
+
+def get_db():
+    """
+    Creates a new SQLAlchemy session and yields it. 
+
+    This function ensures that the database session is properly closed after use.
+    """
+    db = SessionLocal()
+    try:
+        yield db
+    finally:
+        db.close()
