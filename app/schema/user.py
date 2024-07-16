@@ -22,7 +22,7 @@ class UserBase(BaseModel):
     username: str
 
 
-class UserIn(UserBase):
+class UserCreate(UserBase):
     """	
     Schema for creating a new user.
 
@@ -32,7 +32,7 @@ class UserIn(UserBase):
     password: str
 
 
-class UserOut(UserBase, BaseSchema):
+class UserPublic(UserBase, BaseSchema):
     """
     Schema for returning user information.
 
