@@ -3,7 +3,7 @@ This module define the UserService class responsible for handling business logic
 related to user entities.
 """
 
-from fastapi import HTTPException
+from fastapi import HTTPException, status
 from sqlalchemy.orm import Session
 from app.schema.user import UserCreate, UserPublic
 from app.crud.crud_user import CRUDUser
@@ -36,11 +36,11 @@ class UserService:
         """
         if self.crud.get_by_username(user.username):
             raise HTTPException(
-                status_code=400, detail="Username already registered")
+                status_code=status.HTTP_409_CONFLICT, detail="Username already registered")
 
         if self.crud.get_by_email(user.email):
             raise HTTPException(
-                status_code=400, detail="Email already registered")
+                status_code=status.HTTP_409_CONFLICT, detail="Email already registered")
 
         # Hash the password before storing it
         user.password = hash_password(user.password)
