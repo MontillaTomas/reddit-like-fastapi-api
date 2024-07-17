@@ -13,6 +13,22 @@ from app.service.user_service import UserService
 user_router = APIRouter(prefix="/v1/users", tags=["Users"])
 
 
+@user_router.get("/{user_id}", response_model=UserPublic, summary="Get a user by ID",
+                 response_description="The user with the provided ID.")
+def get_user_by_id(user_id: int, session: Session = Depends(get_db)):
+    """
+    Get a user by its ID.
+
+    - **user_id**: ID of the user to retrieve.
+
+    Returns the user with the provided ID.
+
+    Raises HTTPException if the user with the provided ID is not found.
+    """
+    user_service = UserService(session)
+    return user_service.get_by_id(user_id)
+
+
 @user_router.post("/", response_model=UserPublic, summary="Create a user",
                   response_description="The created user.", status_code=status.HTTP_201_CREATED)
 def create_user(user: UserCreate, session: Session = Depends(get_db)):

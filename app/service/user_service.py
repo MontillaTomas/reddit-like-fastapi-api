@@ -46,3 +46,24 @@ class UserService:
         user.password = hash_password(user.password)
         # Create the user
         return self.crud.create(user)
+
+    def get_by_id(self, user_id: int) -> UserPublic:
+        """
+        Gets a user by its ID.
+
+        Args:
+            user_id (int): ID of the user to retrieve.
+
+        Returns:
+            UserPublic: User entity object if found.
+
+        Raises:
+            HTTPException: If the user with the given ID is not found.
+        """
+        user = self.crud.get_by_id(user_id)
+
+        if user is None:
+            raise HTTPException(status_code=status.HTTP_404_NOT_FOUND,
+                                detail=f"User with id={user_id} was not found")
+
+        return user
