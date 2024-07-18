@@ -5,8 +5,8 @@ This module contains Pydantic models related to user management, including
 input data models for creating users, and output data models for returning
 user information.
 """
-import re
 from pydantic import BaseModel, EmailStr, Field, field_validator
+from app.core.pw_validator import validate_password
 from .base_schema import BaseSchema
 
 
@@ -48,19 +48,7 @@ class UserCreate(UserBase):
         Returns:
             str: The validated password.
         """
-
-        if not re.search(r"[A-Z]", value):
-            raise ValueError(
-                "Password must contain at least one uppercase letter")
-        if not re.search(r"[a-z]", value):
-            raise ValueError(
-                "Password must contain at least one lowercase letter")
-        if not re.search(r"\d", value):
-            raise ValueError("Password must contain at least one digit")
-        if not re.search(r"[@#$%^&+=-]", value):
-            raise ValueError(
-                "Password must contain at least one special character from [@#$%^&+=-]")
-        return value
+        return validate_password(value)
 
 
 class UserPublic(UserBase, BaseSchema):
@@ -75,3 +63,42 @@ class UserPublic(UserBase, BaseSchema):
     model_config = {
         "from_attributes": "true"
     }
+
+
+class UserUpdateUsername(BaseModel):
+    """
+    Schema for updating a user's username.
+
+    Attributes:
+        username (str): The new username for the user.
+    """
+    username: str
+
+
+class UserUpdatePassword(BaseModel):
+    """
+    Schema for updating a user's password.
+
+    Attributes:
+        old_password (str): The user's current password.
+        new_password (str): The new password for the user.
+    """
+    old_password: str
+    new_password: str = Field(min_length=8, max_length=30)
+
+    @field_validator("new_password")
+    @classmethod
+    def validate_password(cls, value):
+        """
+        Validate the password.
+
+        Args:
+            value (str): The password to be validated.
+
+        Raises:
+            ValueError: If the password does not meet the required criteria.
+
+        Returns:
+            str: The validated password.
+        """
+        return validate_password(value)
