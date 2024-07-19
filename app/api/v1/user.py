@@ -7,7 +7,7 @@ This module defines the user_router APIRouter instance for managing user endpoin
 from fastapi import APIRouter, status, Depends
 from sqlalchemy.orm import Session
 from app.database.database import get_db
-from app.schema.user import UserCreate, UserPublic, UserUpdateUsername, UserUpdatePassword
+from app.schema.user import UserCreate, UserPublic, UserUpdateUsername, UserUpdatePassword, UserDelete
 from app.service.user_service import UserService
 
 user_router = APIRouter(prefix="/v1/users", tags=["Users"])
@@ -95,3 +95,25 @@ def update_user_password(user_id: int, user_passwords: UserUpdatePassword,
     """
     user_service = UserService(session)
     return user_service.update_password(user_id, user_passwords)
+
+
+@user_router.delete("/{user_id}",
+                    response_model=None,
+                    summary="Delete a user",
+                    response_description="No content",
+                    status_code=status.HTTP_204_NO_CONTENT)
+def delete_user(user_id: int, password: UserDelete, session: Session = Depends(get_db)):
+    """
+    Delete a user.
+
+    - **user_id**: ID of the user to delete.
+    - **password**: Password of the user.
+
+    Returns no content.
+
+    Raises HTTPException if the user with the provided ID is not found or if the password is 
+    incorrect.
+    """
+    user_service = UserService(session)
+    user_service.delete(user_id, password)
+    return None

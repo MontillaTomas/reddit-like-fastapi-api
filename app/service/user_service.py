@@ -5,7 +5,7 @@ related to user entities.
 
 from fastapi import HTTPException, status
 from sqlalchemy.orm import Session
-from app.schema.user import UserCreate, UserPublic, UserUpdateUsername, UserUpdatePassword
+from app.schema.user import UserCreate, UserPublic, UserUpdateUsername, UserUpdatePassword, UserDelete
 from app.crud.crud_user import CRUDUser
 from app.core.security import hash_password, verify_password
 
@@ -139,3 +139,27 @@ class UserService:
 
         user.password = hash_password(password_schema.new_password)
         return self.crud.update(user)
+
+    def delete(self, user_id: int, password: UserDelete) -> None:
+        """
+        Deletes a user.
+
+        Args:
+            user_id (int): ID of the user to delete.
+            password (UserDelete): UserDelete schema instance containing the user's password.
+
+        Raises:
+            HTTPException: If the user with the given ID is not found or the password is incorrect.
+        """
+        user = self.crud.get_by_id(user_id)
+        if user is None:
+            raise HTTPException(status_code=status.HTTP_404_NOT_FOUND,
+                                detail=f"User with id={user_id} was not found")
+
+        if not verify_password(password.password, user.password):
+            raise HTTPException(
+                status_code=status.HTTP_401_UNAUTHORIZED,
+                detail="Password is incorrect"
+            )
+
+        self.crud.delete(user)
