@@ -29,8 +29,7 @@ class CRUDUser:
         Returns:
             UserPublic: Created User entity object.
         """
-        user = User(email=user.email, username=user.username,
-                    hashed_password=user.password)
+        user = User(**user.model_dump())
         self.session.add(user)
         self.session.commit()
         self.session.refresh(user)

@@ -14,7 +14,7 @@ class User(BaseModel):
         id (BigInteger): The primary key of the user.
         email (String): The email of the user, must be unique.
         username (String): The username of the user, must be unique.
-        hashed_password (String): The hashed password of the user.
+        password (String): The hashed password of the user.
     """
 
     __tablename__ = 'user'
@@ -22,4 +22,4 @@ class User(BaseModel):
     id = Column(BigInteger, primary_key=True, nullable=False)
     email = Column(String(255), nullable=False, unique=True)
     username = Column(String(255), nullable=False, unique=True)
-    hashed_password = Column(String(60), nullable=False)
+    password = Column(String(60), nullable=False)
