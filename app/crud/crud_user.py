@@ -72,7 +72,7 @@ class CRUDUser:
         """
         return self.session.query(User).filter(User.email == email).first()
 
-    def update_user(self, user: UserPublic):
+    def update(self, user: UserPublic):
         """
         Updates a user record in the database.
 

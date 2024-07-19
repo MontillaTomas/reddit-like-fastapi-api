@@ -102,7 +102,7 @@ class UserService:
             )
 
         user.username = new_username.username
-        return self.crud.update_user(user)
+        return self.crud.update(user)
 
     def update_password(self, user_id: int, password_schema: UserUpdatePassword) -> UserPublic:
         """
@@ -138,4 +138,4 @@ class UserService:
             )
 
         user.password = hash_password(password_schema.new_password)
-        return self.crud.update_user(user)
+        return self.crud.update(user)
