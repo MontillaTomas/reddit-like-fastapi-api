@@ -3,8 +3,8 @@ Module for CRUD operations related to users in the database.
 """
 
 from sqlalchemy.orm import Session
-from sqlalchemy.sql import func
-from app.schema.user import UserCreate, UserPublic
+from sqlalchemy.sql import func, and_
+from app.schema.user import UserCreate
 from app.model.user import User
 
 
@@ -20,7 +20,7 @@ class CRUDUser:
     def __init__(self, session: Session):
         self.session = session
 
-    def create(self, user: UserCreate):
+    def create(self, user: UserCreate) -> User:
         """
         Creates a new user record in the database.
 
@@ -36,7 +36,7 @@ class CRUDUser:
         self.session.refresh(user)
         return user
 
-    def get_by_id(self, user_id: int):
+    def get_by_id(self, user_id: int) -> User:
         """
         Retrieves a user record from the database by its ID.
 
@@ -46,9 +46,9 @@ class CRUDUser:
         Returns:
             User: User entity object if found.
         """
-        return self.session.query(User).filter(User.id == user_id).first()
+        return self.session.query(User).filter(and_(User.id == user_id, User.is_deleted is False)).first()
 
-    def get_by_username(self, username: str):
+    def get_by_username(self, username: str) -> User:
         """
         Retrieves a user record from the database by its username.
 
@@ -58,9 +58,9 @@ class CRUDUser:
         Returns:
             User: User entity object if found.
         """
-        return self.session.query(User).filter(User.username == username).first()
+        return self.session.query(User).filter(and_(User.username == username, User.is_deleted is False)).first()
 
-    def get_by_email(self, email: str):
+    def get_by_email(self, email: str) -> User:
         """
         Retrieves a user record from the database by its email.
 
@@ -70,9 +70,9 @@ class CRUDUser:
         Returns:
             User: User entity object if found.
         """
-        return self.session.query(User).filter(User.email == email).first()
+        return self.session.query(User).filter(and_(User.email == email, User.is_deleted is False)).first()
 
-    def update(self, user: UserPublic):
+    def update(self, user: User) -> User:
         """
         Updates a user record in the database.
 
@@ -82,8 +82,18 @@ class CRUDUser:
         Returns:
             UserPublic: Updated User entity object.
         """
-        # pylint: disable=not-callable
-        user.updated_at = func.now()
+        user.updated_at = func.now()  # pylint: disable=not-callable
         self.session.commit()
         self.session.refresh(user)
         return user
+
+    def delete(self, user: User) -> None:
+        """
+        Deletes a user record from the database.
+
+        Args:
+            user (User): User entity object to delete.
+        """
+        user.is_deleted = True
+        user.deleted_at = func.now()  # pylint: disable=not-callable
+        self.session.commit()

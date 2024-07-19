@@ -102,3 +102,13 @@ class UserUpdatePassword(BaseModel):
             str: The validated password.
         """
         return validate_password(value)
+
+
+class UserDelete(BaseModel):
+    """
+    Schema for deleting a user.
+
+    Attributes:
+        password (str): The user's password.
+    """
+    password: str
