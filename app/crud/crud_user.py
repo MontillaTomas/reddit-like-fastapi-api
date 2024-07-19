@@ -3,7 +3,8 @@ Module for CRUD operations related to users in the database.
 """
 
 from sqlalchemy.orm import Session
-from app.schema.user import UserCreate
+from sqlalchemy.sql import func
+from app.schema.user import UserCreate, UserPublic
 from app.model.user import User
 
 
@@ -70,3 +71,19 @@ class CRUDUser:
             User: User entity object if found.
         """
         return self.session.query(User).filter(User.email == email).first()
+
+    def update_user(self, user: UserPublic):
+        """
+        Updates a user record in the database.
+
+        Args:
+            user (UserPublic): UserPublic schema instance containing updated user data.
+
+        Returns:
+            UserPublic: Updated User entity object.
+        """
+        # pylint: disable=not-callable
+        user.updated_at = func.now()
+        self.session.commit()
+        self.session.refresh(user)
+        return user
