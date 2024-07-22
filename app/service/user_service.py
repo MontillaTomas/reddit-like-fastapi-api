@@ -7,7 +7,7 @@ from fastapi import HTTPException, status
 from sqlalchemy.orm import Session
 from app.schema.user import UserCreate, UserPublic, UserUpdateUsername, UserUpdatePassword, UserDelete
 from app.crud.crud_user import CRUDUser
-from app.core.security import hash_password, verify_password
+from app.core.pw_utils import hash_password, verify_password
 
 
 class UserService:
