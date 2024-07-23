@@ -3,7 +3,7 @@ Module for CRUD operations related to users in the database.
 """
 
 from sqlalchemy.orm import Session
-from sqlalchemy.sql import func, and_
+from sqlalchemy.sql import func
 from app.schema.user import UserCreate
 from app.model.user import User
 
@@ -46,7 +46,7 @@ class CRUDUser:
         Returns:
             User: User entity object if found.
         """
-        return self.session.query(User).filter(and_(User.id == user_id, User.is_deleted is False)).first()
+        return self.session.query(User).filter(User.id == user_id).first()
 
     def get_by_username(self, username: str) -> User:
         """
@@ -58,7 +58,7 @@ class CRUDUser:
         Returns:
             User: User entity object if found.
         """
-        return self.session.query(User).filter(and_(User.username == username, User.is_deleted is False)).first()
+        return self.session.query(User).filter(User.username == username).first()
 
     def get_by_email(self, email: str) -> User:
         """
@@ -70,7 +70,7 @@ class CRUDUser:
         Returns:
             User: User entity object if found.
         """
-        return self.session.query(User).filter(and_(User.email == email, User.is_deleted is False)).first()
+        return self.session.query(User).filter(User.email == email).first()
 
     def update(self, user: User) -> User:
         """
