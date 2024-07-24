@@ -3,7 +3,7 @@ Module for defining token-related schemas.
 """
 from datetime import datetime
 from pydantic import BaseModel
-from .user import UserPublic
+from .user import UserPayload
 
 
 class Token(BaseModel):
@@ -19,7 +19,7 @@ class Token(BaseModel):
     access_token: str
     token_type: str = 'Bearer'
     expire_time: datetime
-    user: UserPublic
+    user: UserPayload
 
 
 class TokenData(BaseModel):
@@ -29,4 +29,4 @@ class TokenData(BaseModel):
     Attributes:
         user (UserPublic): The user data included in the token.
     """
-    user: UserPublic
+    user: UserPayload
