@@ -6,12 +6,12 @@ from datetime import datetime, timedelta, timezone
 
 import jwt
 from fastapi.security import OAuth2PasswordBearer
-
+from fastapi import HTTPException, status, Depends
 from app.schema.token import TokenData, Token
-from app.schema.user import UserPublic
+from app.schema.user import UserPayload
 from app.core.config import settings
 
-oauth2_scheme = OAuth2PasswordBearer(tokenUrl="login")
+oauth2_scheme = OAuth2PasswordBearer(tokenUrl="v1/login")
 
 # openssl rand -hex 32
 SECRET_KEY = f"{settings.secret_key}"
@@ -41,13 +41,13 @@ def create_access_token(data: TokenData) -> Token:
     return Token(access_token=encoded_jwt, expire_time=expire, user=data.user)
 
 
-def verify_access_token(token: str, credentials_exception) -> TokenData:
+def verify_access_token(token: str, credentials_exception: HTTPException) -> TokenData:
     """
     Verifies the validity of a JWT access token.
 
     Args:
         token (str): The JWT token to verify.
-        credentials_exception (Exception): The exception to raise if verification fails.
+        credentials_exception (HTTPException): The exception to raise if verification fails.
 
     Returns:
         TokenData: The decoded token data if verification is successful.
@@ -62,9 +62,35 @@ def verify_access_token(token: str, credentials_exception) -> TokenData:
         if user_dict is None:
             raise credentials_exception
 
-        user = UserPublic(**user_dict)
+        user = UserPayload(**user_dict)
         token_data = TokenData(user=user)
     except jwt.PyJWTError as e:
         raise credentials_exception from e
 
     return token_data
+
+
+def get_current_user(token: str = Depends(oauth2_scheme)) -> UserPayload:
+    """
+    Gets the current user from the JWT access token.
+
+    Args:
+        token (str): The JWT access token.
+
+    Returns:
+        UserPayload: The user data extracted from the token.
+
+    Raises:
+        HTTPException: If the token is invalid or expired
+    """
+    credentials_exception = HTTPException(
+        status_code=status.HTTP_401_UNAUTHORIZED,
+        detail="Could not validate credentials",
+        headers={"WWW-Authenticate": "Bearer"},
+    )
+
+    token_data = verify_access_token(token, credentials_exception)
+
+    user_payload = token_data.user
+
+    return user_payload
