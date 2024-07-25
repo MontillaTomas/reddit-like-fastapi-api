@@ -112,3 +112,15 @@ class UserDelete(BaseModel):
         password (str): The user's password.
     """
     password: str
+
+
+class UserPayload(BaseModel):
+    """
+    Schema for user payload for JWT token.
+
+    Attributes:
+        id (int): The primary key of the user.
+        username (str): The username of the user.
+    """
+    id: int
+    username: str
