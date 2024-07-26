@@ -94,6 +94,5 @@ class CRUDUser:
         Args:
             user (User): User entity object to delete.
         """
-        user.is_deleted = True
-        user.deleted_at = func.now()  # pylint: disable=not-callable
+        self.session.delete(user)
         self.session.commit()
