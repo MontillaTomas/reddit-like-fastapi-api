@@ -8,7 +8,8 @@ from typing import Annotated
 from fastapi import APIRouter, status, Depends
 from sqlalchemy.orm import Session
 from app.database.database import get_db
-from app.schema.user import UserCreate, UserPublic, UserUpdateUsername, UserUpdatePassword, UserDelete
+from app.auth.jwt import get_current_user
+from app.schema.user import UserCreate, UserPublic, UserUpdateUsername, UserUpdatePassword, UserDelete, UserPayload
 from app.service.user_service import UserService
 
 user_router = APIRouter(prefix="/v1/users", tags=["Users"])
@@ -54,17 +55,18 @@ def create_user(user: UserCreate, session: Annotated[Session, Depends(get_db)]):
     return user_service.create(user)
 
 
-@user_router.put("/{user_id}/username",
+@user_router.put("/username",
                  response_model=UserPublic,
                  summary="Update a user's username",
                  response_description="The updated user.",
                  status_code=status.HTTP_200_OK)
-def update_user_username(user_id: int, new_username: UserUpdateUsername,
+def update_user_username(user_payload: Annotated[UserPayload, Depends(get_current_user)],
+                         new_username: UserUpdateUsername,
                          session: Annotated[Session, Depends(get_db)]):
     """
     Update a user's username.
 
-    - **user_id**: ID of the user to update.
+    - **user_payload**: Payload containing the user's information from the JWT token.
     - **new_username**: New username for the user.
 
     Returns the updated user.
@@ -73,20 +75,21 @@ def update_user_username(user_id: int, new_username: UserUpdateUsername,
     already registered or if the new username is the same as the old username.
     """
     user_service = UserService(session)
-    return user_service.update_username(user_id, new_username)
+    return user_service.update_username(user_payload.id, new_username)
 
 
-@user_router.put("/{user_id}/password",
+@user_router.put("/password",
                  response_model=UserPublic,
                  summary="Update a user's password",
                  response_description="The updated user.",
                  status_code=status.HTTP_200_OK)
-def update_user_password(user_id: int, user_passwords: UserUpdatePassword,
+def update_user_password(user_payload: Annotated[UserPayload, Depends(get_current_user)],
+                         user_passwords: UserUpdatePassword,
                          session: Annotated[Session, Depends(get_db)]):
     """
     Update a user's password.
 
-    - **user_id**: ID of the user to update.
+    - **user_payload**: Payload containing the user's information from the JWT token.
     - **user_passwords**: New and old passwords for the user.
 
     Returns the updated user.
@@ -95,19 +98,21 @@ def update_user_password(user_id: int, user_passwords: UserUpdatePassword,
     incorrect or if the new password is the same as the old password.
     """
     user_service = UserService(session)
-    return user_service.update_password(user_id, user_passwords)
+    return user_service.update_password(user_payload.id, user_passwords)
 
 
-@user_router.delete("/{user_id}",
+@user_router.delete("/",
                     response_model=None,
                     summary="Delete a user",
                     response_description="No content",
                     status_code=status.HTTP_204_NO_CONTENT)
-def delete_user(user_id: int, password: UserDelete, session: Annotated[Session, Depends(get_db)]):
+def delete_user(user_payload: Annotated[UserPayload, Depends(get_current_user)],
+                password: UserDelete,
+                session: Annotated[Session, Depends(get_db)]):
     """
     Delete a user.
 
-    - **user_id**: ID of the user to delete.
+    - **user_payload**: Payload containing the user's information from the JWT token.
     - **password**: Password of the user.
 
     Returns no content.
@@ -116,5 +121,5 @@ def delete_user(user_id: int, password: UserDelete, session: Annotated[Session, 
     incorrect.
     """
     user_service = UserService(session)
-    user_service.delete(user_id, password)
+    user_service.delete(user_payload.id, password)
     return None
