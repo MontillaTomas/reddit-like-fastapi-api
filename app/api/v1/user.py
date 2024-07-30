@@ -4,6 +4,7 @@ Module for defining user-related API routes and operations in version 1 of the A
 This module defines the user_router APIRouter instance for managing user endpoints.
 """
 
+from typing import Annotated
 from fastapi import APIRouter, status, Depends
 from sqlalchemy.orm import Session
 from app.database.database import get_db
@@ -18,7 +19,7 @@ user_router = APIRouter(prefix="/v1/users", tags=["Users"])
                  summary="Get a user by ID",
                  response_description="The user with the provided ID.",
                  status_code=status.HTTP_200_OK)
-def get_user_by_id(user_id: int, session: Session = Depends(get_db)):
+def get_user_by_id(user_id: int, session: Annotated[Session, Depends(get_db)]):
     """
     Get a user by its ID.
 
@@ -37,7 +38,7 @@ def get_user_by_id(user_id: int, session: Session = Depends(get_db)):
                   summary="Create a user",
                   response_description="The created user.",
                   status_code=status.HTTP_201_CREATED)
-def create_user(user: UserCreate, session: Session = Depends(get_db)):
+def create_user(user: UserCreate, session: Annotated[Session, Depends(get_db)]):
     """
     Create a new user.
 
@@ -59,7 +60,7 @@ def create_user(user: UserCreate, session: Session = Depends(get_db)):
                  response_description="The updated user.",
                  status_code=status.HTTP_200_OK)
 def update_user_username(user_id: int, new_username: UserUpdateUsername,
-                         session: Session = Depends(get_db)):
+                         session: Annotated[Session, Depends(get_db)]):
     """
     Update a user's username.
 
@@ -81,7 +82,7 @@ def update_user_username(user_id: int, new_username: UserUpdateUsername,
                  response_description="The updated user.",
                  status_code=status.HTTP_200_OK)
 def update_user_password(user_id: int, user_passwords: UserUpdatePassword,
-                         session: Session = Depends(get_db)):
+                         session: Annotated[Session, Depends(get_db)]):
     """
     Update a user's password.
 
@@ -102,7 +103,7 @@ def update_user_password(user_id: int, user_passwords: UserUpdatePassword,
                     summary="Delete a user",
                     response_description="No content",
                     status_code=status.HTTP_204_NO_CONTENT)
-def delete_user(user_id: int, password: UserDelete, session: Session = Depends(get_db)):
+def delete_user(user_id: int, password: UserDelete, session: Annotated[Session, Depends(get_db)]):
     """
     Delete a user.
 
