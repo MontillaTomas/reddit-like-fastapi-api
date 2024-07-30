@@ -5,6 +5,7 @@ This module defines the API endpoints related to user authentication,
 including login functionality.
 """
 
+from typing import Annotated
 from fastapi import APIRouter, status, Depends
 from fastapi.security import OAuth2PasswordRequestForm
 from sqlalchemy.orm import Session
@@ -20,8 +21,8 @@ auth_router = APIRouter(prefix="/v1", tags=["Authentication"])
                   summary="Authenticate a user",
                   response_description="The access token for the user.",
                   status_code=status.HTTP_200_OK)
-def login(user_credentials: OAuth2PasswordRequestForm = Depends(),
-          session: Session = Depends(get_db)):
+def login(user_credentials: Annotated[OAuth2PasswordRequestForm, Depends()],
+          session: Annotated[Session, Depends(get_db)]):
     """
     Authenticate a user by providing the username (or email) and password.
 
