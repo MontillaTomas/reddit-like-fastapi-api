@@ -6,3 +6,4 @@ It ensures that Alembic can detect all models for generating migrations.
 
 from app.database.database import Base
 from .user import User
+from .pfp import ProfilePicture
