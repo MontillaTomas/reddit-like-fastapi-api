@@ -11,6 +11,7 @@ from app.database.database import get_db
 from app.auth.jwt import get_current_user
 from app.schema.user import UserCreate, UserPublic, UserUpdateUsername, UserUpdatePassword, UserDelete, UserPayload
 from app.service.user_service import UserService
+from app.api.v1.pfp import pfp_router
 
 user_router = APIRouter(prefix="/v1/users", tags=["Users"])
 
@@ -123,3 +124,6 @@ def delete_user(user_payload: Annotated[UserPayload, Depends(get_current_user)],
     user_service = UserService(session)
     user_service.delete(user_payload.id, password)
     return None
+
+
+user_router.include_router(pfp_router)

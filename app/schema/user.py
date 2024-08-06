@@ -8,6 +8,7 @@ user information.
 from pydantic import BaseModel, EmailStr, Field, field_validator
 from app.core.pw_validator import validate_password
 from .base_schema import BaseSchema
+from .pfp import ProfilePicturePublic
 
 
 class UserBase(BaseModel):
@@ -27,6 +28,8 @@ class UserCreate(UserBase):
     Schema for creating a new user.
 
     Attributes:
+        email (EmailStr): Email address of the user.
+        username (str): Username of the user.
         password (str): Password of the user. The password must be between 8 and 30 characters long.
         It must contain at least one uppercase letter, one lowercase letter, one digit, and one 
         special character from the set [@#$%^&+=-].
@@ -57,8 +60,14 @@ class UserPublic(UserBase, BaseSchema):
 
     Attributes:
         id (int): The primary key of the user.
+        email (EmailStr): Email address of the user.
+        username (str): Username of the user.
+        created_at (datetime): Timestamp indicating creation time.
+        updated_at (datetime, optional): Timestamp indicating last update time.
+        profile_picture (ProfilePicturePublic, optional): Profile picture of the user.
     """
     id: int
+    profile_picture: ProfilePicturePublic | None = None
 
     model_config = {
         "from_attributes": "true"

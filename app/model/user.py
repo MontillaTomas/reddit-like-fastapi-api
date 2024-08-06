@@ -15,6 +15,8 @@ class User(BaseModel):
         email (String): The email of the user, must be unique.
         username (String): The username of the user, must be unique.
         password (String): The hashed password of the user.
+        created_at (DateTime): The timestamp when the record was created; defaults to current time.
+        updated_at (DateTime): The timestamp when the record was last updated.
     """
 
     __tablename__ = 'user'
