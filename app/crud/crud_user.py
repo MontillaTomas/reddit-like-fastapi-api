@@ -108,4 +108,6 @@ class CRUDUser:
         Returns:
             ProfilePicture: ProfilePicture entity object if found.
         """
-        return self.session.query(ProfilePicture).filter(and_(ProfilePicture.user_id == user_id, ProfilePicture.is_deleted == False)).first()
+        return self.session.query(ProfilePicture).filter(and_(
+            ProfilePicture.user_id == user_id,
+            ProfilePicture.is_deleted.is_(False))).first()
