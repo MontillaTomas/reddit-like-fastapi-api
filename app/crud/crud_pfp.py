@@ -4,7 +4,7 @@ Module defining CRUD operations for profile pictures.
 
 from uuid import UUID
 from sqlalchemy.orm import Session
-from sqlalchemy.sql import func
+from sqlalchemy.sql import func, and_
 from app.model.pfp import ProfilePicture
 from app.schema.pfp import ProfilePictureCreate
 
@@ -37,6 +37,28 @@ class CRUDPfp:
         self.session.commit()
         self.session.refresh(pfp)
         return pfp
+
+    def delete_current_pfp(self, user_id: int) -> ProfilePicture:
+        """
+        Soft deletes the current profile picture of a user.
+
+        Args:
+            user_id (int): The ID of the user whose profile picture is to be deleted.
+
+        Returns:
+            ProfilePicture: The profile picture record that was soft deleted.
+        """
+        last_pfp = self.session.query(ProfilePicture).filter(
+            and_(ProfilePicture.user_id == user_id,
+                 ProfilePicture.deleted_at.is_(None))
+        ).first()
+
+        if last_pfp:
+            last_pfp.deleted_at = func.now()  # pylint: disable=not-callable
+            last_pfp.is_deleted = True
+
+        self.session.commit()
+        return last_pfp
 
     def get_by_id(self, pfp_uuid: UUID) -> ProfilePicture:
         """

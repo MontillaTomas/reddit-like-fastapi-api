@@ -67,6 +67,13 @@ class ProfilePictureService:
             raise HTTPException(status_code=status.HTTP_500_INTERNAL_SERVER_ERROR,
                                 detail=f"An error occurred while saving the file: {str(e)}") from e
 
+        prev_pfp = self.crud.delete_current_pfp(user_id)
+
+        # remove the previous profile picture file
+        if prev_pfp:
+            prev_file_path = Path(prev_pfp.path)
+            prev_file_path.unlink(missing_ok=True)
+
         pfp = ProfilePictureCreate(
             id=uuid4_filename, user_id=user_id, path=str(file_path))
 
