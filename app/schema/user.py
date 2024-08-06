@@ -8,6 +8,7 @@ user information.
 from pydantic import BaseModel, EmailStr, Field, field_validator
 from app.core.pw_validator import validate_password
 from .base_schema import BaseSchema
+from .pfp import ProfilePicturePublic
 
 
 class UserBase(BaseModel):
@@ -63,8 +64,10 @@ class UserPublic(UserBase, BaseSchema):
         username (str): Username of the user.
         created_at (datetime): Timestamp indicating creation time.
         updated_at (datetime, optional): Timestamp indicating last update time.
+        profile_picture (ProfilePicturePublic, optional): Profile picture of the user.
     """
     id: int
+    profile_picture: ProfilePicturePublic | None = None
 
     model_config = {
         "from_attributes": "true"

@@ -3,9 +3,10 @@ Module for CRUD operations related to users in the database.
 """
 
 from sqlalchemy.orm import Session
-from sqlalchemy.sql import func
+from sqlalchemy.sql import func, and_
 from app.schema.user import UserCreate
 from app.model.user import User
+from app.model.pfp import ProfilePicture
 
 
 class CRUDUser:
@@ -96,3 +97,15 @@ class CRUDUser:
         """
         self.session.delete(user)
         self.session.commit()
+
+    def get_current_profile_picture(self, user_id: int):
+        """
+        Retrieves the current profile picture of a user.
+
+        Args:
+            user_id (int): ID of the user whose profile picture to retrieve.
+
+        Returns:
+            ProfilePicture: ProfilePicture entity object if found.
+        """
+        return self.session.query(ProfilePicture).filter(and_(ProfilePicture.user_id == user_id, ProfilePicture.is_deleted == False)).first()

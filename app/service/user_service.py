@@ -66,7 +66,16 @@ class UserService:
             raise HTTPException(status_code=status.HTTP_404_NOT_FOUND,
                                 detail=f"User with id={user_id} was not found")
 
-        return user
+        profile_picture = self.crud.get_current_profile_picture(user_id)
+
+        return UserPublic(
+            id=user.id,
+            email=user.email,
+            username=user.username,
+            created_at=user.created_at,
+            updated_at=user.updated_at,
+            profile_picture=profile_picture
+        )
 
     def update_username(self, user_id: int, new_username: UserUpdateUsername) -> UserPublic:
         """
