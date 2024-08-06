@@ -4,7 +4,7 @@ for managing profile picture uploads, validations, and storage.
 """
 
 from pathlib import Path
-from uuid import uuid4
+from uuid import uuid4, UUID
 
 from fastapi import HTTPException, UploadFile, status
 from sqlalchemy.orm import Session
@@ -71,3 +71,19 @@ class ProfilePictureService:
             id=uuid4_filename, user_id=user_id, path=str(file_path))
 
         return self.crud.create(pfp)
+
+    def get_by_id(self, pfp_uuid: UUID) -> ProfilePicturePublic:
+        """
+        Retrieves a profile picture record by its UUID.
+
+        Args:
+            pfp_uuid (UUID): The UUID of the profile picture to retrieve.
+
+        Returns:
+            ProfilePicturePublic: The public schema of the profile picture record with the provided UUID.
+        """
+        pfp = self.crud.get_by_id(pfp_uuid)
+        if not pfp:
+            raise HTTPException(status_code=status.HTTP_404_NOT_FOUND,
+                                detail="Profile picture not found.")
+        return pfp

@@ -2,6 +2,7 @@
 Module defining CRUD operations for profile pictures.
 """
 
+from uuid import UUID
 from sqlalchemy.orm import Session
 from sqlalchemy.sql import func
 from app.model.pfp import ProfilePicture
@@ -36,3 +37,15 @@ class CRUDPfp:
         self.session.commit()
         self.session.refresh(pfp)
         return pfp
+
+    def get_by_id(self, pfp_uuid: UUID) -> ProfilePicture:
+        """
+        Retrieves a profile picture record by its UUID.
+
+        Args:
+            pfp_uuid (UUID): The UUID of the profile picture to retrieve.
+
+        Returns:
+            ProfilePicture: The profile picture record with the provided UUID.
+        """
+        return self.session.query(ProfilePicture).filter(ProfilePicture.id == pfp_uuid).first()

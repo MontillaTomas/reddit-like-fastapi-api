@@ -4,6 +4,7 @@ Module for handling profile picture-related API routes and operations in version
 This module defines the pfp_router APIRouter instance for managing profile picture endpoints.
 """
 
+from uuid import UUID
 from typing import Annotated
 from fastapi import APIRouter, status, Depends, UploadFile
 from sqlalchemy.orm import Session
@@ -36,3 +37,22 @@ async def upload_profile_picture(file: UploadFile,
     """
     pfp_service = ProfilePictureService(session)
     return await pfp_service.save_profile_picture(user_payload.id, file)
+
+
+@pfp_router.get("/{pfp_id}",
+                response_model=ProfilePicturePublic,
+                summary="Get a profile picture by ID",
+                response_description="The profile picture with the provided ID.",
+                status_code=status.HTTP_200_OK)
+def get_profile_picture_by_id(pfp_id: UUID, session: Annotated[Session, Depends(get_db)]):
+    """
+    Get a profile picture by its ID.
+
+    - **pfp_id**: ID of the profile picture to retrieve.
+
+    Returns the profile picture with the provided ID.
+
+    Raises HTTPException if the profile picture with the provided ID is not found.
+    """
+    pfp_service = ProfilePictureService(session)
+    return pfp_service.get_by_id(pfp_id)
