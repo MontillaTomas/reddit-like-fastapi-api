@@ -48,7 +48,8 @@ class RateLimitMiddleware(BaseHTTPMiddleware):
         if current_time - self.rate_limit_records[key] < 1:
             return Response(
                 status_code=status.HTTP_429_TOO_MANY_REQUESTS,
-                content="Rate limit exceeded. Try again in a second."
+                media_type="application/json",
+                content="{\"detail\": \"Rate limit exceeded. Try again in a second.\"}"
             )
 
         self.rate_limit_records[key] = current_time
