@@ -4,7 +4,6 @@ Module for handling profile picture-related API routes and operations in version
 This module defines the pfp_router APIRouter instance for managing profile picture endpoints.
 """
 
-from uuid import UUID
 from typing import Annotated
 from fastapi import APIRouter, status, Depends, UploadFile
 from app.auth.jwt import get_current_user
@@ -13,7 +12,7 @@ from app.schema.pfp import ProfilePicturePublic
 from app.schema.user import UserPayload
 from app.service.pfp_service import ProfilePictureService
 
-pfp_router = APIRouter(prefix="/profile-pictures")
+pfp_router = APIRouter(prefix="/me/profile-pictures")
 
 
 @pfp_router.post("/",
@@ -35,22 +34,3 @@ async def upload_profile_picture(file: UploadFile,
     or an error occurs while saving the file.
     """
     return await pfp_service.save_profile_picture(user_payload.id, file)
-
-
-@pfp_router.get("/{pfp_id}",
-                response_model=ProfilePicturePublic,
-                summary="Get a profile picture by ID",
-                response_description="The profile picture with the provided ID.",
-                status_code=status.HTTP_200_OK)
-def get_profile_picture_by_id(pfp_id: UUID,
-                              pfp_service: Annotated[ProfilePictureService, Depends(get_pfp_service)]):
-    """
-    Get a profile picture by its ID.
-
-    - **pfp_id**: ID of the profile picture to retrieve.
-
-    Returns the profile picture with the provided ID.
-
-    Raises HTTPException if the profile picture with the provided ID is not found.
-    """
-    return pfp_service.get_by_id(pfp_id)

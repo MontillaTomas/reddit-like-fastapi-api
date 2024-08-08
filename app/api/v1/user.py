@@ -53,7 +53,7 @@ def create_user(user: UserCreate, user_service: Annotated[UserService, Depends(g
     return user_service.create(user)
 
 
-@user_router.put("/username",
+@user_router.put("/me/username",
                  response_model=UserPublic,
                  summary="Update a user's username",
                  response_description="The updated user.",
@@ -75,7 +75,7 @@ def update_user_username(user_payload: Annotated[UserPayload, Depends(get_curren
     return user_service.update_username(user_payload.id, new_username)
 
 
-@user_router.put("/password",
+@user_router.put("/me/password",
                  response_model=UserPublic,
                  summary="Update a user's password",
                  response_description="The updated user.",
@@ -97,7 +97,7 @@ def update_user_password(user_payload: Annotated[UserPayload, Depends(get_curren
     return user_service.update_password(user_payload.id, user_passwords)
 
 
-@user_router.delete("/",
+@user_router.delete("/me",
                     response_model=None,
                     summary="Delete a user",
                     response_description="No content",
