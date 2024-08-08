@@ -79,6 +79,32 @@ class ProfilePictureService:
 
         return self.crud.create(pfp)
 
+    def delete_current_profile_picture(self, user_id: int) -> None:
+        """
+        Deletes the current profile picture of a user.
+
+        Args:
+            user_id (int): The ID of the user whose profile picture is to be deleted.
+
+        Raises:
+            HTTPException: If the user does not have a profile picture.
+
+        Returns:
+            None
+        """
+        pfp = self.crud.get_by_user_id(user_id)
+
+        if not pfp:
+            raise HTTPException(status_code=status.HTTP_404_NOT_FOUND,
+                                detail="User does not have a profile picture.")
+
+        file_path = Path(pfp.path)
+        file_path.unlink(missing_ok=True)
+
+        self.crud.delete_current_pfp(user_id)
+
+        return None
+
     def get_by_id(self, pfp_uuid: UUID) -> ProfilePicturePublic:
         """
         Retrieves a profile picture record by its UUID.
@@ -87,7 +113,8 @@ class ProfilePictureService:
             pfp_uuid (UUID): The UUID of the profile picture to retrieve.
 
         Returns:
-            ProfilePicturePublic: The public schema of the profile picture record with the provided UUID.
+            ProfilePicturePublic: The public schema of the profile picture record with the provided
+            UUID.
         """
         pfp = self.crud.get_by_id(pfp_uuid)
         if not pfp:

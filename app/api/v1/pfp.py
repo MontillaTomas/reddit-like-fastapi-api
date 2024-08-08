@@ -20,9 +20,9 @@ pfp_router = APIRouter(prefix="/me/profile-pictures")
                  summary="Upload a profile picture",
                  response_description="The uploaded profile picture details.",
                  status_code=status.HTTP_201_CREATED)
-async def upload_profile_picture(file: UploadFile,
-                                 user_payload: Annotated[UserPayload, Depends(get_current_user)],
-                                 pfp_service: Annotated[ProfilePictureService, Depends(get_pfp_service)]):
+async def upload_pfp(file: UploadFile,
+                     user_payload: Annotated[UserPayload, Depends(get_current_user)],
+                     pfp_service: Annotated[ProfilePictureService, Depends(get_pfp_service)]):
     """
     Upload a profile picture for the authenticated user.
 
@@ -34,3 +34,20 @@ async def upload_profile_picture(file: UploadFile,
     or an error occurs while saving the file.
     """
     return await pfp_service.save_profile_picture(user_payload.id, file)
+
+
+@pfp_router.delete("/",
+                   response_model=None,
+                   summary="Delete current profile picture",
+                   response_description="No content",
+                   status_code=status.HTTP_204_NO_CONTENT)
+def delete_current_pfp(user_payload: Annotated[UserPayload, Depends(get_current_user)],
+                       pfp_service: Annotated[ProfilePictureService, Depends(get_pfp_service)]):
+    """
+    Delete the current profile picture of the authenticated user.
+
+    Returns no content.
+
+    Raises HTTPException if the user does not have a profile picture.
+    """
+    return pfp_service.delete_current_profile_picture(user_payload.id)

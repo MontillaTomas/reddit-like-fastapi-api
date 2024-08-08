@@ -50,7 +50,7 @@ class CRUDPfp:
         """
         last_pfp = self.session.query(ProfilePicture).filter(
             and_(ProfilePicture.user_id == user_id,
-                 ProfilePicture.deleted_at.is_(None))
+                 ProfilePicture.is_deleted.is_(False))
         ).first()
 
         if last_pfp:
@@ -71,3 +71,18 @@ class CRUDPfp:
             ProfilePicture: The profile picture record with the provided UUID.
         """
         return self.session.query(ProfilePicture).filter(ProfilePicture.id == pfp_uuid).first()
+
+    def get_by_user_id(self, user_id: int) -> ProfilePicture:
+        """
+        Retrieves the current profile picture of a user.
+
+        Args:
+            user_id (int): The ID of the user whose profile picture is to be retrieved.
+
+        Returns:
+            ProfilePicture: The profile picture record of the user.
+        """
+        return self.session.query(ProfilePicture).filter(
+            and_(ProfilePicture.user_id == user_id,
+                 ProfilePicture.is_deleted.is_(False))
+        ).first()
