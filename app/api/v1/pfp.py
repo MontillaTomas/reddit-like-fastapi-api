@@ -4,7 +4,6 @@ Module for handling profile picture-related API routes and operations in version
 This module defines the pfp_router APIRouter instance for managing profile picture endpoints.
 """
 
-from uuid import UUID
 from typing import Annotated
 from fastapi import APIRouter, status, Depends, UploadFile
 from app.auth.jwt import get_current_user
@@ -13,7 +12,7 @@ from app.schema.pfp import ProfilePicturePublic
 from app.schema.user import UserPayload
 from app.service.pfp_service import ProfilePictureService
 
-pfp_router = APIRouter(prefix="/profile-pictures")
+pfp_router = APIRouter(prefix="/me/profile-pictures")
 
 
 @pfp_router.post("/",
@@ -21,9 +20,9 @@ pfp_router = APIRouter(prefix="/profile-pictures")
                  summary="Upload a profile picture",
                  response_description="The uploaded profile picture details.",
                  status_code=status.HTTP_201_CREATED)
-async def upload_profile_picture(file: UploadFile,
-                                 user_payload: Annotated[UserPayload, Depends(get_current_user)],
-                                 pfp_service: Annotated[ProfilePictureService, Depends(get_pfp_service)]):
+async def upload_pfp(file: UploadFile,
+                     user_payload: Annotated[UserPayload, Depends(get_current_user)],
+                     pfp_service: Annotated[ProfilePictureService, Depends(get_pfp_service)]):
     """
     Upload a profile picture for the authenticated user.
 
@@ -37,20 +36,18 @@ async def upload_profile_picture(file: UploadFile,
     return await pfp_service.save_profile_picture(user_payload.id, file)
 
 
-@pfp_router.get("/{pfp_id}",
-                response_model=ProfilePicturePublic,
-                summary="Get a profile picture by ID",
-                response_description="The profile picture with the provided ID.",
-                status_code=status.HTTP_200_OK)
-def get_profile_picture_by_id(pfp_id: UUID,
-                              pfp_service: Annotated[ProfilePictureService, Depends(get_pfp_service)]):
+@pfp_router.delete("/",
+                   response_model=None,
+                   summary="Delete current profile picture",
+                   response_description="No content",
+                   status_code=status.HTTP_204_NO_CONTENT)
+def delete_current_pfp(user_payload: Annotated[UserPayload, Depends(get_current_user)],
+                       pfp_service: Annotated[ProfilePictureService, Depends(get_pfp_service)]):
     """
-    Get a profile picture by its ID.
+    Delete the current profile picture of the authenticated user.
 
-    - **pfp_id**: ID of the profile picture to retrieve.
+    Returns no content.
 
-    Returns the profile picture with the provided ID.
-
-    Raises HTTPException if the profile picture with the provided ID is not found.
+    Raises HTTPException if the user does not have a profile picture.
     """
-    return pfp_service.get_by_id(pfp_id)
+    return pfp_service.delete_current_profile_picture(user_payload.id)
