@@ -6,9 +6,8 @@ This module defines the user_router APIRouter instance for managing user endpoin
 
 from typing import Annotated
 from fastapi import APIRouter, status, Depends
-from sqlalchemy.orm import Session
-from app.database.database import get_db
 from app.auth.jwt import get_current_user
+from app.dependency.user_service_dependency import get_user_service
 from app.schema.user import UserCreate, UserPublic, UserUpdateUsername, UserUpdatePassword, UserDelete, UserPayload
 from app.service.user_service import UserService
 from app.api.v1.pfp import pfp_router
@@ -21,7 +20,7 @@ user_router = APIRouter(prefix="/v1/users", tags=["Users"])
                  summary="Get a user by ID",
                  response_description="The user with the provided ID.",
                  status_code=status.HTTP_200_OK)
-def get_user_by_id(user_id: int, session: Annotated[Session, Depends(get_db)]):
+def get_user_by_id(user_id: int, user_service: Annotated[UserService, Depends(get_user_service)]):
     """
     Get a user by its ID.
 
@@ -31,7 +30,6 @@ def get_user_by_id(user_id: int, session: Annotated[Session, Depends(get_db)]):
 
     Raises HTTPException if the user with the provided ID is not found.
     """
-    user_service = UserService(session)
     return user_service.get_by_id(user_id)
 
 
@@ -40,7 +38,7 @@ def get_user_by_id(user_id: int, session: Annotated[Session, Depends(get_db)]):
                   summary="Create a user",
                   response_description="The created user.",
                   status_code=status.HTTP_201_CREATED)
-def create_user(user: UserCreate, session: Annotated[Session, Depends(get_db)]):
+def create_user(user: UserCreate, user_service: Annotated[UserService, Depends(get_user_service)]):
     """
     Create a new user.
 
@@ -52,7 +50,6 @@ def create_user(user: UserCreate, session: Annotated[Session, Depends(get_db)]):
 
     Raises HTTPException if the username or email is already registered.
     """
-    user_service = UserService(session)
     return user_service.create(user)
 
 
@@ -63,7 +60,7 @@ def create_user(user: UserCreate, session: Annotated[Session, Depends(get_db)]):
                  status_code=status.HTTP_200_OK)
 def update_user_username(user_payload: Annotated[UserPayload, Depends(get_current_user)],
                          new_username: UserUpdateUsername,
-                         session: Annotated[Session, Depends(get_db)]):
+                         user_service: Annotated[UserService, Depends(get_user_service)]):
     """
     Update a user's username.
 
@@ -75,7 +72,6 @@ def update_user_username(user_payload: Annotated[UserPayload, Depends(get_curren
     Raises HTTPException if the user with the provided ID is not found or if the username is 
     already registered or if the new username is the same as the old username.
     """
-    user_service = UserService(session)
     return user_service.update_username(user_payload.id, new_username)
 
 
@@ -86,7 +82,7 @@ def update_user_username(user_payload: Annotated[UserPayload, Depends(get_curren
                  status_code=status.HTTP_200_OK)
 def update_user_password(user_payload: Annotated[UserPayload, Depends(get_current_user)],
                          user_passwords: UserUpdatePassword,
-                         session: Annotated[Session, Depends(get_db)]):
+                         user_service: Annotated[UserService, Depends(get_user_service)]):
     """
     Update a user's password.
 
@@ -98,7 +94,6 @@ def update_user_password(user_payload: Annotated[UserPayload, Depends(get_curren
     Raises HTTPException if the user with the provided ID is not found or if the old password is
     incorrect or if the new password is the same as the old password.
     """
-    user_service = UserService(session)
     return user_service.update_password(user_payload.id, user_passwords)
 
 
@@ -109,7 +104,7 @@ def update_user_password(user_payload: Annotated[UserPayload, Depends(get_curren
                     status_code=status.HTTP_204_NO_CONTENT)
 def delete_user(user_payload: Annotated[UserPayload, Depends(get_current_user)],
                 password: UserDelete,
-                session: Annotated[Session, Depends(get_db)]):
+                user_service: Annotated[UserService, Depends(get_user_service)]):
     """
     Delete a user.
 
@@ -121,9 +116,7 @@ def delete_user(user_payload: Annotated[UserPayload, Depends(get_current_user)],
     Raises HTTPException if the user with the provided ID is not found or if the password is 
     incorrect.
     """
-    user_service = UserService(session)
-    user_service.delete(user_payload.id, password)
-    return None
+    return user_service.delete(user_payload.id, password)
 
 
 user_router.include_router(pfp_router)
